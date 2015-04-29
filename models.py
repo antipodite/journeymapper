@@ -22,6 +22,6 @@ class Entry(db.Model):
         return '<id:{} date:{} lat:{} lng:{} text:{}>'.format(
             self.id,
             self.date,
-            self.lat,
-            self.lng,
+            self.latitude,
+            self.longitude,
             self.text[32:])
