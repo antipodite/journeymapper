@@ -58,3 +58,6 @@ target/
 
 # OSX Junk
 .DS_Store
+
+# Vim junk
+*.swp
