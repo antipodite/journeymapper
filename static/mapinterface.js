@@ -5,7 +5,7 @@ function addMarker(map, id, latlng) {
         entry_id: id
     });
     google.maps.event.addListener(marker, 'click', function() {
-        var url = '/entries/' + marker.entry_id;
+        var url = '/entry-text/' + marker.entry_id;
         $('#entrybox').load(url);
     });
 }
@@ -14,7 +14,6 @@ function initialise()
 {
     var options = {
         // This should be centered on the first location marker
-        // Entries from
         center: { lat: -50.7, lng: 166.1},
         zoom: 6,
         mapTypeId: 'satellite'
@@ -22,8 +21,8 @@ function initialise()
     var map = new google.maps.Map(document.getElementById('mapbox'), options);
 
     // Request the entries from the JSON entries view and make loc markers
-    $.getJSON('/jsonentries', function(response) {
-        map.setCenter(response[1])
+    $.getJSON('/all-positions', function(response) {
+        map.setCenter(response[0])
         $.each(response, function(id, latlng) {
             if (latlng.lat && latlng.lng) {
                 addMarker(map, id, latlng)
