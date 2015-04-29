@@ -1,4 +1,6 @@
-from app import db
+from flask.ext.sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy() # No app parameter to avoid circular import problem
 
 class Entry(db.Model):
     """ A table to store journal entries"""
