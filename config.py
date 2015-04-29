@@ -1,3 +1,5 @@
+import os
+
 class Config(object):
     DEBUG = False
     CSRF_ENABLED = True # Cross-site request forgery protection for Flask-WTF
