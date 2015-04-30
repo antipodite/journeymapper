@@ -22,10 +22,11 @@ function initialise()
 
     // Request the entries from the JSON entries view and make loc markers
     $.getJSON('/all-positions', function(response) {
-        map.setCenter(response[0])
+        var first = Object.keys(response)[0] // Deal with it nerds
+        map.setCenter(response[first]);
         $.each(response, function(id, latlng) {
             if (latlng.lat && latlng.lng) {
-                addMarker(map, id, latlng)
+                addMarker(map, id, latlng);
             }
         });
     });

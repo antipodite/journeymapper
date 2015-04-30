@@ -8,7 +8,6 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 db.app = app
 db.init_app(app)
 
-
 @app.route('/')
 def index():
     """Render the index page"""
