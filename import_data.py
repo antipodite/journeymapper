@@ -1,0 +1,24 @@
+"""
+    Import data from csv file to the local database
+"""
+import csv
+import sys
+from app import db, Entry
+from datetime import datetime
+
+csvfile= sys.argv[1]
+
+with open(csvfile, 'r') as f:
+    # Remove previous rows
+    db.session.query(Entry).delete()
+    reader = csv.reader(f)
+    rows = [row for row in reader]
+
+    for row in rows:
+        date = datetime.strptime(row[0], '%Y-%m-%d')
+        lat = row[1] if row[1] != '' else None
+        lng = row[2] if row[2] != '' else None
+        text = row[3] if row[3] != '' else None
+        e = Entry(date, lat, lng, text)
+        db.session.add(e)
+    db.session.commit()
