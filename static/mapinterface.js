@@ -2,11 +2,22 @@ function addMarker(map, id, latlng) {
     var marker = new google.maps.Marker({
         position: latlng,
         map: map,
-        entry_id: id
+        entry_id: id,
+        icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 5,
+            strokeColor: 'red'
+        }
     });
     google.maps.event.addListener(marker, 'click', function() {
         var url = '/entry-text/' + marker.entry_id;
-        $('#entrybox').load(url);
+        $.getJSON(url, function(response) {
+            console.log(response);
+            $('#datefield').text(response.date);
+            $('#latfield').text(response.lat);
+            $('#lngfield').text(response.lng);
+            $('#entrybox').text(response.text);
+        });
     });
 }
 

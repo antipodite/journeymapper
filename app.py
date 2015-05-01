@@ -32,8 +32,9 @@ def text_for_entry(eid):
 
     This is used in AJAX calls when the user clicks on a marker on
     the Gmap to load the text into the display box."""
-    row = Entry.query.get(eid)
-    return row.text
+    entry = Entry.query.get(eid).to_json()
+    print type(entry)
+    return jsonify(entry)
 
 if __name__ == "__main__":
     app.run()

@@ -18,6 +18,16 @@ class Entry(db.Model):
         self.longitude = lng
         self.text = text
 
+    def to_json(self):
+        """Return a dictionary representation of the object, for use
+        with JSON reponses."""
+        # Datetime.strftime doesn't work with years before 1900
+        obj = {'date': self.date.isoformat(),
+               'lat': self.latitude,
+               'lng': self.longitude,
+               'text': self.text}
+        return obj
+
     def __repr__(self):
         return '<id:{} date:{} lat:{} lng:{} text:{}>'.format(
             self.id,
