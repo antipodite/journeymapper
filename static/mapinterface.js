@@ -13,10 +13,10 @@ function addMarker(map, id, latlng) {
         var url = '/entry-text/' + marker.entry_id;
         $.getJSON(url, function(response) {
             console.log(response);
-            $('#datefield').text(response.date);
-            $('#latfield').text(response.lat);
-            $('#lngfield').text(response.lng);
-            $('#entrybox').text(response.text);
+            $('#date_field').text(response.date);
+            $('#lat_field').text(response.lat);
+            $('#lng_field').text(response.lng);
+            $('#entry_field').text(response.text);
         });
     });
 }
@@ -29,7 +29,9 @@ function initialise()
         zoom: 6,
         mapTypeId: 'satellite'
     };
-    var map = new google.maps.Map(document.getElementById('mapbox'), options);
+
+    var map = new google.maps.Map(document.getElementById('map_box'), options);
+    console.log(map);
 
     // Request the entries from the JSON entries view and make loc markers
     $.getJSON('/all-positions', function(response) {
