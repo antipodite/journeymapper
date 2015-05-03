@@ -60,12 +60,19 @@ function initialise()
 
 google.maps.event.addDomListener(window, 'load', initialise);
 
-// Load the first journal entry into the entry viewer when the page loads
 $(document).ready(function () {
-    $.getJSON('/first_entry', function(response) {
-        $('#date_field').text(response.date);
-        $('#lat_field').text(response.lat);
-        $('#lng_field').text(response.lng);
-        $('#entry_field').text(response.text);
+    // Load the first 10 journal entry into the entry viewer when the page loads
+    // Need to change the HTML so the entry viewer can handle multiple entries
+    $.getJSON('/get-many-entries/10', function(response) {
+        $.each(response, function(date, lat, lng, text) {
+            $('#date_field').text(date);
+            $('#lat_field').text(lat);
+            $('#lng_field').text(lng);
+            $('#entry_field').text(text);
+        });
+    });
+    // Bind the `scroll` event handler to the entry viewer
+    $('#entry_box').scroll(function() {
+        console.log('Scroll event handler called');
     });
 });

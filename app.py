@@ -34,10 +34,11 @@ def text_for_entry(eid):
     entry = Entry.query.get(eid).to_json()
     return jsonify(entry)
 
-@app.route('/first_entry')
-def first_entry():
-    entry = Entry.query.first().to_json()
-    return jsonify(entry)
+@app.route('/get-many-entries/<count>')
+def get_many_entries(count):
+    rows = Entry.query.order_by(Entry.date.asc()).limit(count).all()
+    entries = [row.to_json() for row in rows]
+    return jsonify(entries)
 
 if __name__ == "__main__":
     app.run()
