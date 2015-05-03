@@ -32,7 +32,11 @@ def text_for_entry(eid):
     This is used in AJAX calls when the user clicks on a marker on
     the Gmap to load the text into the display box."""
     entry = Entry.query.get(eid).to_json()
-    print type(entry)
+    return jsonify(entry)
+
+@app.route('/first_entry')
+def first_entry():
+    entry = Entry.query.first().to_json()
     return jsonify(entry)
 
 if __name__ == "__main__":

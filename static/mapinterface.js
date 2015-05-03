@@ -59,3 +59,13 @@ function initialise()
 }
 
 google.maps.event.addDomListener(window, 'load', initialise);
+
+// Load the first journal entry into the entry viewer when the page loads
+$(document).ready(function () {
+    $.getJSON('/first_entry', function(response) {
+        $('#date_field').text(response.date);
+        $('#lat_field').text(response.lat);
+        $('#lng_field').text(response.lng);
+        $('#entry_field').text(response.text);
+    });
+});
