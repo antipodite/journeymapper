@@ -16,14 +16,13 @@ def index():
 @app.route('/all-positions')
 def all_entry_positions():
     """Return a JSON response containing all journal entry positions
+    which have a valid latitude and longitude."""
 
-    This is used to display all the positions where a journal entry
-    was made on the Gmap when the index page is loaded. Position is
-    given as a Gmaps coord literal"""
-    rows = Entry.query.all()
+    rows = db.session.query(Entry).filter(Entry.latitude != None,
+                                          Entry.longitude != None)
     entries = {}
     for row in rows:
-        entries[row.id] = {'lat': row.latitude, 'lng': row.longitude}
+        entries[row.id] = row.to_latlng()
     return jsonify(entries)
 
 @app.route('/entry-text/<eid>')
