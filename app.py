@@ -40,5 +40,12 @@ def get_many_entries(count):
     entries = [row.to_json() for row in rows]
     return jsonify(entries)
 
+@app.route('/formatted-entry/<eid>')
+def formatted_entry(eid):
+    """Return an entry rendered into a div for display in the entry
+    viewer. Called with Ajax to dynamically load entries."""
+    entry = Entry.query.get(eid)
+    return render_template('entry.html', entry=entry)
+
 if __name__ == "__main__":
     app.run()
