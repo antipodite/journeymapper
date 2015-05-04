@@ -17,12 +17,9 @@ function addMarker(map, id, latlng) {
         }
     });
     google.maps.event.addListener(marker, 'click', function() {
-        var url = '/entry-text/' + marker.entry_id;
-        $.getJSON(url, function(response) {
-            $('#date_field').text(response.date);
-            $('#lat_field').text(response.lat);
-            $('#lng_field').text(response.lng);
-            $('#entry_field').text(response.text);
+        var url = '/formatted-entry/' + marker.entry_id;
+        $.get(url, function(response) {
+            $('#entry_box').append(response);
         });
     });
 }
@@ -61,16 +58,6 @@ function initialise()
 google.maps.event.addDomListener(window, 'load', initialise);
 
 $(document).ready(function () {
-    // Load the first 10 journal entry into the entry viewer when the page loads
-    // Need to change the HTML so the entry viewer can handle multiple entries
-    $.getJSON('/get-many-entries/10', function(response) {
-        $.each(response, function(date, lat, lng, text) {
-            $('#date_field').text(date);
-            $('#lat_field').text(lat);
-            $('#lng_field').text(lng);
-            $('#entry_field').text(text);
-        });
-    });
     // Bind the `scroll` event handler to the entry viewer
     $('#entry_box').scroll(function() {
         console.log('Scroll event handler called');
