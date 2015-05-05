@@ -53,7 +53,7 @@ def query_entries():
 
         eid = request.args.get('eid')
         if eid:
-            query = query.filter(Entry.id == eid)
+            query = query.filter(Entry.id >= eid)
 
         # This has to come after any .filter calls or SQLAlchemy complains
         count = request.args.get('count')

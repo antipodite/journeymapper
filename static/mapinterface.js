@@ -17,8 +17,9 @@ function addMarker(map, id, latlng) {
         }
     });
     google.maps.event.addListener(marker, 'click', function() {
-        var url = '/entries/query/?eid=' + marker.entry_id;
+        var url = '/entries/query/?count=10&eid=' + marker.entry_id;
         $.get(url, function(response) {
+            $('#entry_box').empty();
             $('#entry_box').append(response);
         });
     });
@@ -67,7 +68,6 @@ $(document).ready(function () {
     // bottom of the entry viewer (WIP)
     $('#entry_box').scroll(function() {
         if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
-            console.log('Quick, load more entries!!!!!');
             // Get the ID of the last entry in the viewer
             // Consider making the ID a property in the div tag to avoid below
             var lastEntryDiv = $(this).children().last();
@@ -75,6 +75,8 @@ $(document).ready(function () {
             var url = '/entries/query/?count=10&start_date=' + lastDate;
             $.get(url, function(response) {
                 $('#entry_box').append(response);
+                // Scroll back to the top
+                $(this).scrollTop(0);
             });
         }
     });
