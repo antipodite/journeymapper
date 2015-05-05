@@ -1,6 +1,6 @@
 import os
-import datetime
-from flask import Flask, render_template, jsonify
+from datetime import datetime
+from flask import Flask, render_template, jsonify, request
 from models import db, Entry
 
 app = Flask(__name__)
@@ -17,9 +17,7 @@ def index():
 def all_entry_positions():
     """Return a JSON response containing all journal entry positions
     which have a valid latitude and longitude."""
-
-    rows = db.session.query(Entry).filter(Entry.latitude != None,
-                                          Entry.longitude != None)
+    rows = Entry.query.filter(Entry.latitude != None, Entry.longitude != None)
     entries = {}
     for row in rows:
         entries[row.id] = row.to_latlng()
@@ -37,6 +35,13 @@ def text_for_entry(eid):
 @app.route('/get-many-entries/<count>')
 def get_many_entries(count):
     entries  = Entry.query.order_by(Entry.date.asc()).limit(count).all()
+    return render_template('entry.html', entries=entries)
+
+@app.route('/entries/')
+def entries():
+    start = datetime.strptime(request.args.get('start_date'), '%Y-%m-%d').date()
+    count = request.args.get('count')
+    entries = Entry.query.filter(Entry.date >= start).order_by(Entry.date.asc()).limit(count)
     return render_template('entry.html', entries=entries)
 
 if __name__ == "__main__":
