@@ -21,6 +21,9 @@ function addMarker(map, id, latlng) {
         $.get(url, function(response) {
             $('#entry_box').empty();
             $('#entry_box').append(response);
+            $('#entry_box').animate({
+                scrollTop: 0
+            });
         });
     });
 }
