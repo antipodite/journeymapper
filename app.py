@@ -37,14 +37,30 @@ def query_entries():
     """Allow the browser to query the entry table - accepts optional
     arguments, constructs SQLAlchemy query, then returns rendered entries
     """
-    query = Entry.query.order_by(Entry.date.asc())
-    for arg, value in request.args.iteritems():
-        if arg is 'start_date':
-            start = datetime.strptime(value, '%Y-%m-%d').date()
-            query = query.filter(Entry.date >= value)
-        if arg is 'count':
-            query = query.limit(value)
-    entries = query.all()
+    # There are some parameters
+    if request.args:
+        query = db.session.query(Entry).order_by(Entry.date.asc())
+
+        start_date = request.args.get('start_date')
+        if start_date:
+            start = datetime.strptime(start_date, '%Y-%m-%d').date()
+            query = query.filter(Entry.date >= start)
+
+        end_date = request.args.get('end_date')
+        if end_date:
+            end = datetime.strptime(end_date, '%Y-%m-%d)').date()
+            query = query.filter(Entry.date < end)
+
+        # This has to come after any .filter calls or SQLAlchemy complains
+        count = request.args.get('count')
+        if count:
+            query = query.limit(count)
+
+        entries = query.all()
+    # There are no parameters
+    else:
+        entries = []
+
     return render_template('entry.html', entries=entries)
 
 if __name__ == "__main__":
