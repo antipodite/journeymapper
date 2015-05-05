@@ -44,12 +44,16 @@ def query_entries():
         start_date = request.args.get('start_date')
         if start_date:
             start = datetime.strptime(start_date, '%Y-%m-%d').date()
-            query = query.filter(Entry.date >= start)
+            query = query.filter(Entry.date > start)
 
         end_date = request.args.get('end_date')
         if end_date:
             end = datetime.strptime(end_date, '%Y-%m-%d)').date()
             query = query.filter(Entry.date < end)
+
+        eid = request.args.get('eid')
+        if eid:
+            query = query.filter(Entry.id == eid)
 
         # This has to come after any .filter calls or SQLAlchemy complains
         count = request.args.get('count')
@@ -57,6 +61,7 @@ def query_entries():
             query = query.limit(count)
 
         entries = query.all()
+
     # There are no parameters
     else:
         entries = []

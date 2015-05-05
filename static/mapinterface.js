@@ -17,7 +17,7 @@ function addMarker(map, id, latlng) {
         }
     });
     google.maps.event.addListener(marker, 'click', function() {
-        var url = '/formatted-entry/' + marker.entry_id;
+        var url = '/entries/query/?eid=' + marker.entry_id;
         $.get(url, function(response) {
             $('#entry_box').append(response);
         });
@@ -58,8 +58,24 @@ function initialise()
 google.maps.event.addDomListener(window, 'load', initialise);
 
 $(document).ready(function () {
-    // Bind the `scroll` event handler to the entry viewer
+    // Fill the entry viewer with the first ten entries
+    var url = '/entries/query/?count=10';
+    $.get(url, function(response) {
+        $('#entry_box').append(response);
+    });
+    // Automatically load the next 10 entries when the user scrolls to the
+    // bottom of the entry viewer (WIP)
     $('#entry_box').scroll(function() {
-        console.log('Scroll event handler called');
+        if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
+            console.log('Quick, load more entries!!!!!');
+            // Get the ID of the last entry in the viewer
+            // Consider making the ID a property in the div tag to avoid below
+            var lastEntryDiv = $(this).children().last();
+            var lastDate = lastEntryDiv.children('.date_field').text();
+            var url = '/entries/query/?count=10&start_date=' + lastDate;
+            $.get(url, function(response) {
+                $('#entry_box').append(response);
+            });
+        }
     });
 });
