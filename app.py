@@ -36,16 +36,8 @@ def text_for_entry(eid):
 
 @app.route('/get-many-entries/<count>')
 def get_many_entries(count):
-    rows = Entry.query.order_by(Entry.date.asc()).limit(count).all()
-    entries = [row.to_json() for row in rows]
-    return jsonify(entries)
-
-@app.route('/formatted-entry/<eid>')
-def formatted_entry(eid):
-    """Return an entry rendered into a div for display in the entry
-    viewer. Called with Ajax to dynamically load entries."""
-    entry = Entry.query.get(eid)
-    return render_template('entry.html', entry=entry)
+    entries  = Entry.query.order_by(Entry.date.asc()).limit(count).all()
+    return render_template('entry.html', entries=entries)
 
 if __name__ == "__main__":
     app.run()

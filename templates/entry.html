@@ -1,6 +1,8 @@
+{% for entry in entries %}
 <div class="entry">
   <span class="date_field">{{ entry.date }}</span>
   <span class="lat_field">{{ entry.latitude }}</span>
   <span class="lng_field">{{ entry.longitude }}</span>
   <p class="entry_field">{{ entry.text }}</span>
 </div>
+{% endfor %}

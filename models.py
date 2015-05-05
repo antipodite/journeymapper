@@ -27,13 +27,15 @@ class Entry(db.Model):
     __tablename__ = "entries"
 
     id = db.Column(db.Integer, primary_key=True)
+    entry_num = db.Column(db.Integer)
     date = db.Column(db.Date)
     latitude = db.Column(db.Float())
     longitude = db.Column(db.Float())
     text = db.Column(db.Text())
     journal_id = db.Column(db.Integer, db.ForeignKey("journals.id"))
 
-    def __init__(self, date, lat, lng, text):
+    def __init__(self, number, date, lat, lng, text):
+        self.entry_num = number
         self.date = date
         self.latitude = lat
         self.longitude = lng
@@ -43,7 +45,8 @@ class Entry(db.Model):
         """Return a dictionary representation of the object, for use
         with JSON reponses."""
         # Datetime.strftime doesn't work with years before 1900
-        obj = {'date': self.date.isoformat(),
+        obj = {'number': self.entry_num,
+               'date': self.date.isoformat(),
                'lat': self.latitude,
                'lng': self.longitude,
                'text': self.text}
@@ -57,8 +60,9 @@ class Entry(db.Model):
         return obj
 
     def __repr__(self):
-        return '<id:{} date:{} lat:{} lng:{} text:{}>'.format(
+        return '<id:{} number:{} date:{} lat:{} lng:{} text:{}>'.format(
             self.id,
+            self.entry_num,
             self.date,
             self.latitude,
             self.longitude,
