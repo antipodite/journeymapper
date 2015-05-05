@@ -32,16 +32,19 @@ def text_for_entry(eid):
     entry = Entry.query.get(eid).to_json()
     return jsonify(entry)
 
-@app.route('/get-many-entries/<count>')
-def get_many_entries(count):
-    entries  = Entry.query.order_by(Entry.date.asc()).limit(count).all()
-    return render_template('entry.html', entries=entries)
-
-@app.route('/entries/')
-def entries():
-    start = datetime.strptime(request.args.get('start_date'), '%Y-%m-%d').date()
-    count = request.args.get('count')
-    entries = Entry.query.filter(Entry.date >= start).order_by(Entry.date.asc()).limit(count)
+@app.route('/entries/query/')
+def query_entries():
+    """Allow the browser to query the entry table - accepts optional
+    arguments, constructs SQLAlchemy query, then returns rendered entries
+    """
+    query = Entry.query.order_by(Entry.date.asc())
+    for arg, value in request.args.iteritems():
+        if arg is 'start_date':
+            start = datetime.strptime(value, '%Y-%m-%d').date()
+            query = query.filter(Entry.date >= value)
+        if arg is 'count':
+            query = query.limit(value)
+    entries = query.all()
     return render_template('entry.html', entries=entries)
 
 if __name__ == "__main__":
