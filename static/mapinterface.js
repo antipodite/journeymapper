@@ -32,28 +32,49 @@ function objectValues(obj) {
 }
 
 // This is wrapped in a self-executing function which returns the actual
-// function so I can have private scope to hold the previousMarker var.
+// function so I can have private scope to hold the previousClickedMarker var.
 var addMarker = (function() {
 
-    // This is used to save a reference to the previous marker, so I can
-    // set it back to its unhighlighted state.
-    var previousMarker;
+    // This is used to save a reference to the previous clicked marker, so I
+    // can set it back to its unhighlighted state.
+    var previousClickedMarker;
+
+    // This is used to save a reference to the previous created marker for
+    // the bearing calculation.
+    var previousCreatedMarkerPos;
 
     // The unhighlighted appearance of the markers
     var defaultIcon = {
-        path: google.maps.SymbolPath.CIRCLE,
+        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
         scale: 4,
-        strokeColor: 'red'
+        strokeColor: 'red',
+        strokeWeight: 1,
+
+        setRotation: function (degrees) {
+            this.rotation = degrees;
+        }
     }
 
     // The highlighted appearance of the markers
     var focusIcon = {
-        path: google.maps.SymbolPath.CIRCLE,
+        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
         scale: 6,
-        strokeColor: 'yellow'
+        strokeColor: 'yellow',
+        strokeWeight: 1,
+
+        setRotation: function (degrees) {
+            this.rotation = degrees;
+        }
     }
 
     return function(map, id, latlng) {
+
+        // Calculate the bearing _from_ the previous marker _to_ this marker
+        // If no previous marker, circle instead of arrow?
+        var bearing = 0;
+        if (previousCreatedMarkerPos) {
+            bearing = findBearing(previousCreatedMarkerPos, latlng);
+        }
 
         var marker = new google.maps.Marker({
             position: latlng,
@@ -69,6 +90,12 @@ var addMarker = (function() {
                 this.setIcon(defaultIcon);
             }
         });
+        marker.icon.setRotation(bearing);
+
+        // We need to calculate the bearing between this marker and the previous
+        // marker, so we need to remember what the previous created marker's
+        // position is
+        previousCreatedMarkerPos = latlng;
 
         // The URL to query server for the next 10 entries
         var url = '/entries/query/?count=10&eid=' + marker.entry_id;
@@ -77,8 +104,8 @@ var addMarker = (function() {
         google.maps.event.addListener(marker, 'click', function() {
             // Unset the highlight on the previous marker, if there is a
             // previous marker
-            if (previousMarker) {
-                previousMarker.unsetHighlight();
+            if (previousClickedMarker) {
+                previousClickedMarker.unsetHighlight();
             }
             // Change the colour of the marker to highlight it
             marker.setHighlight();
@@ -88,7 +115,7 @@ var addMarker = (function() {
                 viewer.append(response);
                 viewer.animate({scrollTop: 0});
             });
-            previousMarker = marker;
+            previousClickedMarker = marker;
         });
     };
 })();
