@@ -5,28 +5,57 @@ function objectValues(obj) {
     return vals;
 }
 
-function addMarker(map, id, latlng) {
-    var marker = new google.maps.Marker({
-        position: latlng,
-        map: map,
-        entry_id: id,
-        icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 5,
-            strokeColor: 'red'
-        }
-    });
-    google.maps.event.addListener(marker, 'click', function() {
-        var url = '/entries/query/?count=10&eid=' + marker.entry_id;
-        $.get(url, function(response) {
-            $('#entry_box').empty();
-            $('#entry_box').append(response);
-            $('#entry_box').animate({
-                scrollTop: 0
-            });
+// This is wrapped in a self-executing function which returns the actual
+// function so I can have private scope to hold the previousMarker var.
+var addMarker = (function() {
+
+    // This is used to save a reference to the previous marker, so I can
+    // set it back to its unhighlighted state.
+    var previousMarker;
+
+    return function(map, id, latlng) {
+        var marker = new google.maps.Marker({
+            position: latlng,
+            map: map,
+            entry_id: id,
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 5,
+                strokeColor: 'red'
+            }
         });
-    });
-}
+
+        // The URL to query server for the next 10 entries
+        var url = '/entries/query/?count=10&eid=' + marker.entry_id;
+
+        // Define the behaviour for when user clicks on a marker
+        google.maps.event.addListener(marker, 'click', function() {
+            // Unset the highlight on the previous marker, if there is a
+            // previous marker
+            if (previousMarker) {
+                previousMarker.setIcon({
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 5,
+                    strokeColor: 'red'
+                });
+            }
+            // Change the colour of the marker to highlight it
+            marker.setIcon({
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 6,
+                strokeColor: 'yellow'
+            });
+            $.get(url, function(response) {
+                var viewer = $('#entry_box');
+                viewer.empty();
+                viewer.append(response);
+                viewer.animate({scrollTop: 0});
+            });
+            previousMarker = marker;
+        });
+
+    };
+})();
 
 function initialise()
 {
