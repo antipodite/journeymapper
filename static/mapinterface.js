@@ -13,15 +13,34 @@ var addMarker = (function() {
     // set it back to its unhighlighted state.
     var previousMarker;
 
+    // The unhighlighted appearance of the markers
+    var defaultIcon = {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 4,
+        strokeColor: 'red'
+    }
+
+    // The highlighted appearance of the markers
+    var focusIcon = {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 6,
+        strokeColor: 'yellow'
+    }
+
     return function(map, id, latlng) {
+
         var marker = new google.maps.Marker({
             position: latlng,
             map: map,
             entry_id: id,
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 5,
-                strokeColor: 'red'
+            icon: defaultIcon,
+
+            setHighlight: function() {
+                this.setIcon(focusIcon);
+            },
+
+            unsetHighlight: function() {
+                this.setIcon(defaultIcon);
             }
         });
 
@@ -33,18 +52,10 @@ var addMarker = (function() {
             // Unset the highlight on the previous marker, if there is a
             // previous marker
             if (previousMarker) {
-                previousMarker.setIcon({
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 5,
-                    strokeColor: 'red'
-                });
+                previousMarker.unsetHighlight();
             }
             // Change the colour of the marker to highlight it
-            marker.setIcon({
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 6,
-                strokeColor: 'yellow'
-            });
+            marker.setHighlight();
             $.get(url, function(response) {
                 var viewer = $('#entry_box');
                 viewer.empty();
@@ -53,7 +64,6 @@ var addMarker = (function() {
             });
             previousMarker = marker;
         });
-
     };
 })();
 
@@ -97,7 +107,7 @@ $(document).ready(function () {
         $('#entry_box').append(response);
     });
     // Automatically load the next 10 entries when the user scrolls to the
-    // bottom of the entry viewer (WIP)
+    // bottom of the entry viewer
     $('#entry_box').scroll(function() {
         if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
             // Get the ID of the last entry in the viewer
