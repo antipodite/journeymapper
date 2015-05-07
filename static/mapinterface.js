@@ -1,3 +1,29 @@
+// Maths to make bearing arrows work, and maybe other cool stuff I haven't
+// thought of yet, who knows?
+function degreesToRadians (degrees) {
+    return degrees * (Math.PI / 180);
+}
+
+function radiansToDegrees (radians) {
+    return radians / (Math.PI / 180);
+}
+
+// Calculate the forward azimuth (great circle bearing) between two latlngs
+function findBearing (latlng1, latlng2) {
+    var p1 = degreesToRadians(latlng1.lat);
+    var p2 = degreesToRadians(latlng2.lat);
+    var l1 = degreesToRadians(latlng1.lng);
+    var l2 = degreesToRadians(latlng2.lng);
+
+    var y = Math.sin(l2 - l1) * Math.cos(p2);
+    var x = Math.cos(p1) * Math.sin(p2) -
+            Math.sin(p1) * Math.cos(p2) * Math.cos(l2 - l1);
+    var bearing = Math.atan2(y, x);
+
+    return radiansToDegrees(bearing);
+}
+
+
 function objectValues(obj) {
     var vals = Object.keys(obj).map(function(key) {
         return obj[key];
