@@ -35,6 +35,8 @@ var MapViewer = (function () {
 
     var map;
     var markers = [];
+    var minMarkerVisZoom = 5;
+    var markersVisible = true;
 
     var initialise = function (elem) {
         var options = {
@@ -64,6 +66,21 @@ var MapViewer = (function () {
                 strokeWeight: 1
             });
             line.setMap(map);
+        });
+
+        // Toggle marker visibility on zoom out
+        google.maps.event.addListener(map, 'zoom_changed', function() {
+            var currentZoom = map.getZoom();
+            console.log(currentZoom);
+            if (currentZoom >= minMarkerVisZoom) {
+                if (!markersVisible) {
+                    showMarkers();
+                    markersVisible = true;
+                }
+            } else if (markersVisible) {
+                hideMarkers();
+                markersVisible = false;
+            }
         });
     };
 
@@ -149,6 +166,18 @@ var MapViewer = (function () {
             return marker;
         };
     })();
+
+    var showMarkers = function () {
+        $.each(markers, function (i, m) {
+            m.setVisible(true);
+        });
+    };
+
+    var hideMarkers = function () {
+        $.each(markers, function (i, m) {
+            m.setVisible(false);
+        });
+    };
 
     // Public API
     return {
