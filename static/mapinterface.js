@@ -38,12 +38,16 @@ var MapViewer = (function () {
     var minMarkerVisZoom = 5;
     var markersVisible = true;
 
+    var options = {
+        center: { lat: -50.7, lng: 166.1},
+        zoom: 6,
+        mapTypeId: 'satellite',
+        panControl: false,
+        scaleControl: true,
+        streetViewControl: false
+    };
+
     var initialise = function (elem) {
-        var options = {
-            center: { lat: -50.7, lng: 166.1},
-            zoom: 6,
-            mapTypeId: 'satellite'
-        };
 
         map = new google.maps.Map(elem, options);
 
