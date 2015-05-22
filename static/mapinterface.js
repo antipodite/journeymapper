@@ -208,14 +208,14 @@ var EntryViewer = (function () {
     };
 
     var loadOnScroll = function (numEntries) {
-        console.log('_domNode: ' + _domNode);
         if ($(_domNode).scrollTop() + $(_domNode).innerHeight() >= _domNode.scrollHeight) {
             var lastEntryNode = $(_domNode).children().last();
             var lastDate = lastEntryNode.children('.date_field').text();
             var url = '/entries/query/?count=10&start_date=' + lastDate;
+            console.log(url);
             $.get(url, function(response) {
+                $(_domNode).empty();
                 $(_domNode).append(response);
-                // Scroll back to the top
                 $(_domNode).scrollTop(0);
             });
         }
