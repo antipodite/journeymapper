@@ -37,6 +37,7 @@ var MapViewer = (function () {
     var markers = [];
     var minMarkerVisZoom = 5;
     var markersVisible = true;
+    var entryViewer;
 
     var options = {
         center: { lat: -50.7, lng: 166.1},
@@ -47,9 +48,11 @@ var MapViewer = (function () {
         streetViewControl: false
     };
 
-    var initialise = function (elem) {
+    var initialise = function (elem, entryViewerObj) {
 
         map = new google.maps.Map(elem, options);
+        entryViewer = entryViewerObj;
+        console.log(entryViewer);
 
         $.getJSON('/all-positions', function(response) {
             // Center the map on the first entry received
@@ -149,12 +152,7 @@ var MapViewer = (function () {
                 }
                 // Change the colour of the marker to highlight it
                 marker.setHighlight();
-                $.get(url, function(response) {
-                    var viewer = $('#entry_box');
-                    viewer.empty();
-                    viewer.append(response);
-                    viewer.animate({scrollTop: 0});
-                });
+                entryViewer.loadEntriesForLoc(marker.entry_id);
                 previousClickedMarker = marker;
             });
             return marker;
@@ -193,47 +191,81 @@ var MapViewer = (function () {
     };
 })();
 
-function initialise()
-{
+var EntryViewer = (function () {
 
-    // Hide the markers when the zoom level is higher than a certain level to
-    // make the map look less busy
-    google.maps.event.addListener(map, 'zoom_changed', function() {
-        var currentZoom = map.getZoom();
-        console.log(currentZoom);
-        if (currentZoom < 5) {
-            // Need access to the markers...
-            console.log('Change markers');
+    var _domNode;
+
+    var init = function (element) {
+        _domNode = element;
+        $(_domNode).scroll(loadOnScroll);
+        console.log(_domNode);
+
+        // Fill the entry viewer with the first ten entries
+        var url = '/entries/query/?count=10';
+        $.get(url, function(response) {
+            $(_domNode).append(response);
+        });
+    };
+
+    var loadOnScroll = function (numEntries) {
+        console.log('_domNode: ' + _domNode);
+        if ($(_domNode).scrollTop() + $(_domNode).innerHeight() >= _domNode.scrollHeight) {
+            var lastEntryNode = $(_domNode).children().last();
+            var lastDate = lastEntryNode.children('.date_field').text();
+            var url = '/entries/query/?count=10&start_date=' + lastDate;
+            $.get(url, function(response) {
+                $(_domNode).append(response);
+                // Scroll back to the top
+                $(_domNode).scrollTop(0);
+            });
         }
-    });
-}
+    };
 
+    var loadEntriesForLoc = function (entryID) {
+        var url = '/entries/query/?count=10&eid=' + entryID;
+        $.get(url, function(response) {
+            $(_domNode).empty();
+            $(_domNode).append(response);
+            $(_domNode).animate({scrollTop: 0});
+        });
+    };
+
+    // Public api
+    return {
+        init: init,
+        loadEntriesForLoc: loadEntriesForLoc
+    };
+})();
 
 $(document).ready(function () {
 
+    var entryViewer = EntryViewer;
+    var entryViewerElem = document.getElementById('entry_box');
+    entryViewer.init(entryViewerElem);
+
     var mapViewer = MapViewer;
     var mapViewerElem = document.getElementById('map_box');
-    mapViewer.initialise(mapViewerElem);
+    mapViewer.initialise(mapViewerElem, entryViewer);
 
-    // Fill the entry viewer with the first ten entries
-    var url = '/entries/query/?count=10';
-    $.get(url, function(response) {
-        $('#entry_box').append(response);
-    });
-    // Automatically load the next 10 entries when the user scrolls to the
-    // bottom of the entry viewer
-    $('#entry_box').scroll(function() {
-        if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
-            // Get the ID of the last entry in the viewer
-            // Consider making the ID a property in the div tag to avoid below
-            var lastEntryDiv = $(this).children().last();
-            var lastDate = lastEntryDiv.children('.date_field').text();
-            var url = '/entries/query/?count=10&start_date=' + lastDate;
-            $.get(url, function(response) {
-                $('#entry_box').append(response);
-                // Scroll back to the top
-                $(this).scrollTop(0);
-            });
-        }
-    });
+//    // Fill the entry viewer with the first ten entries
+//    var url = '/entries/query/?count=10';
+//    $.get(url, function(response) {
+//        $('#entry_box').append(response);
+//    });
+//    // Automatically load the next 10 entries when the user scrolls to the
+//    // bottom of the entry viewer
+//    $('#entry_box').scroll(function() {
+//        if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
+//            // Get the ID of the last entry in the viewer
+//            // Consider making the ID a property in the div tag to avoid below
+//            var lastEntryDiv = $(this).children().last();
+//            var lastDate = lastEntryDiv.children('.date_field').text();
+//            var url = '/entries/query/?count=10&start_date=' + lastDate;
+//            $.get(url, function(response) {
+//                $('#entry_box').append(response);
+//                // Scroll back to the top
+//                $(this).scrollTop(0);
+//            });
+//        }
+//    });
 });
