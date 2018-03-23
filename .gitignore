@@ -61,3 +61,6 @@ target/
 
 # Vim junk
 *.swp
+
+# App databases
+*.db
