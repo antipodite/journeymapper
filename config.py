@@ -8,4 +8,4 @@ class Config(object):
 
 class ProductionConfig(Config):
     DEBUG = False
-    # SQLALCHEMY_DATABASE_URI = "/var/journeys.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///../db/journals.db"

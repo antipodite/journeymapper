@@ -10,7 +10,7 @@ csvfile= sys.argv[1]
 
 with open(csvfile, 'r') as f:
     # Remove previous rows
-    db.session.query(Entry).delete()
+    db.create_all()
     reader = csv.reader(f)
     rows = [row for row in reader]
     number = 1
