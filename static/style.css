@@ -1,25 +1,19 @@
-/* This means that when I set the padding and border on any element, its width
-won't increase. */
-* {
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-            box-sizing: border-box;
+html, body, #container {
+	height: 100%;
+	overflow: hidden;
+	width: 100%;
 }
-/* Need to give everything a height so Gmaps knows how tall to make the map */
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
+
+body {
+	padding-top: 55px;
 }
-#entry_box {
-    position: absolute;
-    height: 100%;
-    left: 0px;
-    max-width: 40%;
-    padding: 1em;
-    overflow: auto;
+
+.navbar {
+	min-height: 50px;
 }
-#map_box {
-    height: 100%;
-    margin-left: 40%;
+
+#map {
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+	height: 100%;
+	width: auto;
 }

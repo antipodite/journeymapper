@@ -64,3 +64,6 @@ target/
 
 # App databases
 *.db
+
+# Cesium
+static/cesium
