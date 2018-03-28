@@ -8,6 +8,12 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 db.app = app
 db.init_app(app)
 
+def make_linestring_from_latlngs(latlngs):
+    """Construct a GeoJSON linestring from a list of coordinates"""
+    ls = {'type': 'LineString'}
+    ls['coordinates'] = [[l['lng'], l['lat']] for l in latlngs]
+    return ls
+
 @app.route('/')
 def index():
     """Render the index page"""
@@ -31,6 +37,19 @@ def text_for_entry(eid):
     the Gmap to load the text into the display box."""
     entry = Entry.query.get(eid).to_json()
     return jsonify(entry)
+
+@app.route('/journals/<jid>')
+def get_route_for_journal(jid):
+    """Return a GeoJSON Linestring representing the route taken in
+    this journal.
+    """
+    query = Entry.query.filter(Entry.latitude != None,
+                               Entry.longitude != None,
+                               Entry.journal_id == jid)
+    entries = query.all()
+    coords = [entry.to_latlng() for entry in entries]
+    linestring = make_linestring_from_latlngs(coords)
+    return jsonify(linestring)
 
 @app.route('/entries/query/')
 def query_entries():
