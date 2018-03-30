@@ -1,4 +1,4 @@
-led / optimized / DLL files
+#Bundled / optimized / DLL files
 __pycache__/
 *.py[cod]
 
@@ -8,6 +8,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 venv/
+.venv/
 build/
 develop-eggs/
 dist/
@@ -66,4 +67,4 @@ target/
 *.db
 
 # Cesium
-static/cesium
+app/static/cesium

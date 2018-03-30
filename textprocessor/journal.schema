@@ -1,0 +1,29 @@
+This is the data format I've come up with for storing journals and journal
+entries so far. Eventually this file should be machine readable, and create a
+new Python dict with the required fields when read in. The aim is for the storage
+format to be as human readable as possible to facilitate manual editing, but to
+also be machine readable. So I'll have a Python class with a load and save method
+to do that.
+
+{
+    ("uuid"?)
+    "title": Journal title, based on the title of the edition
+    "source": URL the journal text was originally retrieved from
+    "start_date": In the strptime() format "%d %B %Y", human + machine friendly
+    "end_date: Ditto
+    "author": Full name of journal's author
+    "entries": [
+        {
+            "number": Number of entry.
+            "date": In the strptime() format "%d %B %Y". Man and machine friendly
+            "latitude": Human readable. Use method to convert to decimal
+            "longitude": Ditto
+            "course_bearing": Angle in degrees for dead reckoning
+            "distance": Distance travelled that day
+            "text": Entry text, paragraphs separated by newlines.
+
+            Plus other fields as I add functionality, but these will do to start
+            with.
+        }
+    ]
+}

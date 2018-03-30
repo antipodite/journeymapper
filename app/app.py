@@ -1,12 +1,22 @@
 import os
+
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request
-from models import db, Entry
+
+from .flaskdb import db
+from .config import DevConfig, LiveConfig
+from ..database.models import Journal, Entry
 
 app = Flask(__name__)
-app.config.from_object(os.environ['APP_SETTINGS'])
-db.app = app
+
+if os.environ['APP_ENV'] == 'live':
+    settings = LiveConfig
+else:
+    settings = DevConfig
+app.config.from_object(settings)
+
 db.init_app(app)
+session = db.session
 
 def make_linestring_from_latlngs(latlngs):
     """Construct a GeoJSON linestring from a list of coordinates"""
@@ -23,7 +33,8 @@ def index():
 def all_entry_positions():
     """Return a JSON response containing all journal entry positions
     which have a valid latitude and longitude."""
-    rows = Entry.query.filter(Entry.latitude != None, Entry.longitude != None)
+    rows = session.query(Entry).filter(Entry.latitude != None, 
+                                       Entry.longitude != None)
     entries = {}
     for row in rows:
         entries[row.id] = row.to_latlng()
@@ -35,7 +46,7 @@ def text_for_entry(eid):
 
     This is used in AJAX calls when the user clicks on a marker on
     the Gmap to load the text into the display box."""
-    entry = Entry.query.get(eid).to_json()
+    entry = session.query(Entry).get(eid).to_json()
     return jsonify(entry)
 
 @app.route('/journals/<jid>')
@@ -43,9 +54,9 @@ def get_route_for_journal(jid):
     """Return a GeoJSON Linestring representing the route taken in
     this journal.
     """
-    query = Entry.query.filter(Entry.latitude != None,
-                               Entry.longitude != None,
-                               Entry.journal_id == jid)
+    query = session.query(Entry).filter(Entry.latitude != None,
+                                        Entry.longitude != None,
+                                        Entry.journal_id == jid)
     entries = query.all()
     coords = [entry.to_latlng() for entry in entries]
     linestring = make_linestring_from_latlngs(coords)
@@ -58,7 +69,7 @@ def query_entries():
     """
     # There are some parameters
     if request.args:
-        query = db.session.query(Entry).order_by(Entry.date.asc())
+        query = session.query(Entry).order_by(Entry.date.asc())
 
         start_date = request.args.get('start_date')
         if start_date:
