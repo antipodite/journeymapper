@@ -1,11 +1,11 @@
 import os
-
+import sys
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 
-from .flaskdb import db
-from .config import DevConfig, LiveConfig
-from ..database.models import Journal, Entry
+from app.flaskdb import db
+from app.config import DevConfig, LiveConfig
+from database.models import Journal, Entry
 
 app = Flask(__name__)
 
@@ -99,4 +99,4 @@ def query_entries():
     return render_template('entry.html', entries=entries)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(use_reloader=False)

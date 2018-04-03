@@ -11,35 +11,29 @@ metadata = MetaData()
 Base = declarative_base()
 
 class Journal(Base):
-    """Represents an explorer's journal"""
+    '''Represents an explorer's journal'''
 
     __tablename__ = 'journal'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String)
     source = Column(String)
-    start_date = Column(Date)
-    end_date = Column(Date)
     author = Column(String)
 
     entries = relationship('Entry')
 
-    def __init__(self, title, source, start_date, end_date, author, entries=[]):
+    def __init__(self, title, source, author, entries=[]):
 
-        # TODO Make most of these optional 
         self.title = title
         self.source = source
-        self.start_date = start_date
-        self.end_date = end_date
         self.author = author
         self.entries = entries
 
-    def to_json(self, include_entries=False):
+    def to_json(self, include_entries=True):
+
         # TODO find a more elegant way to do this.. filter __dict__?
         obj = {'title': self.title,
                'source': self.source,
-               'start_date': self.start_date.strftime(TIME_FORMAT_STR),
-               'end_date': self.end_date.strftime(TIME_FORMAT_STR),
                'author': self.author}
 
         if include_entries:

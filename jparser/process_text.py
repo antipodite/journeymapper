@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python3
 """.
     Simple version of text_analysis.py process. Turns text file of journal
     entries, separated by \n\n, into tabular data and exports it to a TSV
@@ -10,7 +10,8 @@ import calendar
 import re
 import datetime
 import sys
-from ..database.models import Journal, Entry
+
+from database.models import Journal, Entry
 
 def __float(s):
     """Helper to convert regex string matches to floating point numbers"""
@@ -92,33 +93,24 @@ def extract_date():
 
     return extract
 
-def main():
-    """Load the text file, extract the data, and export to CSV."""
 
-    infile = sys.argv[1]
-    outfile = sys.argv[2]
-    if (not infile) or (not outfile):
-        print('Usage: process_text.py [input file] [output file]')
-    else:
-        with open(infile) as f:
-            raw = f.read()
-        entries = raw.split('\n\n')
 
-        extractor = extract_date()
-        output = []
-        for entry in entries:
-            date = extractor(entry)
-            cs = find_coordinate_string(entry)
-            latitude = degrees_to_decimal(**cs['latitude']) if cs else None
-            longitude = degrees_to_decimal(**cs['longitude']) if cs else None
-            text = entry
-            output.append([date, latitude, longitude, text])
+def parse_journal_text(raw):
+    """Process the text of a complete journal
+    """
+    entries = raw.split('\n\n')
+    extractor = extract_date()
+    entry_num = 0
+    output = []
 
-        with open(outfile, 'wb') as f:
-            writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
-            writer.writerows(output)
+    for entry in entries:
+        entry_num += 1
+        date = extractor(entry)
+        cs = find_coordinate_string(entry)
+        lat = degrees_to_decimal(**cs['latitude']) if cs else None
+        lng = degrees_to_decimal(**cs['longitude']) if cs else None
+        text = entry
+        output.append(Entry(entry_num, date, lat, lng, None, None, text))
 
-        print('Done. {} entries'.format(len(output)))
+    return output 
 
-if __name__ == '__main__':
-    main()
