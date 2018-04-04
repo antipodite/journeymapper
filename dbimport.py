@@ -2,16 +2,19 @@
 '''
     Import journal data from a JSON file into specified SQLite database
 '''
+# TODO Add check for whether tables exist, create them if they don't
+# TODO Add option to wipe DB
+# TODO Add check for whether journal exists in DB
+
 import json
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from argparse import ArgumentParser
 
-from database.models import Journal, Entry, metadata
+from database.models import Journal, Entry, Metadata
 
 def main():
-    print(metadata)
     # Set up CLI
     parser = ArgumentParser(description='Load a JSON file containing journal data'
                                         'and store it in given database.')
@@ -27,7 +30,7 @@ def main():
 
     # Connect to DB, create tables if blank, and save objects
     engine = create_engine('sqlite:///' + args.db_file)
-    metadata.create_all(bind=engine)
+    Metadata.create_all(bind=engine)
     Session = sessionmaker()
     Session.configure(bind=engine)
     session = Session()
@@ -38,6 +41,4 @@ def main():
 if __name__ == '__main__':
     main()
 
-## Bug before I go to bed: entries arg to Journal constructor being passed as
-## a list of dicts, rather than a list of entries, so need to make the list of 
-## dicts into entries somehow. -->> Journal.from_json(dic setattr
+

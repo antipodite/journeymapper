@@ -1,11 +1,13 @@
 import os
 import sys
+
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request
+from flask_sqlalchemy import SQLAlchemy
 
 from app.flaskdb import db
 from app.config import DevConfig, LiveConfig
-from database.models import Journal, Entry
+from database.models import Journal, Entry, Metadata
 
 app = Flask(__name__)
 
@@ -15,6 +17,7 @@ else:
     settings = DevConfig
 app.config.from_object(settings)
 
+db = SQLAlchemy(metadata=Metadata)
 db.init_app(app)
 session = db.session
 
