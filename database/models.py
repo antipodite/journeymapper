@@ -1,4 +1,4 @@
-import json
+from datetime import datetime
 
 from sqlalchemy import (Column, Integer, String, Date, ForeignKey, 
                         Float, MetaData)
@@ -7,8 +7,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 TIME_FORMAT_STR = '%d %B %Y'
 
-metadata = MetaData()
 Base = declarative_base()
+metadata = Base.metadata
 
 class Journal(Base):
     '''Represents an explorer's journal'''
@@ -29,23 +29,32 @@ class Journal(Base):
         self.author = author
         self.entries = entries
 
-    def to_json(self, include_entries=True):
-
-        # TODO find a more elegant way to do this.. filter __dict__?
-        obj = {'title': self.title,
-               'source': self.source,
-               'author': self.author}
+    def to_dict(self, include_entries=True):
+        '''
+        Serialize object data to a dict to be stored as JSON,
+        handling type conversion as necessary.
+        '''
+        data = {'title': self.title, 
+                'source': self.source, 
+                'author': self.author}
 
         if include_entries:
-           obj['entries'] = [e.to_dict() for e in self.entries]
+           data['entries'] = [e.to_dict() for e in self.entries]
 
-        return json.dumps(obj)
+        return data
 
-    def load_from_json(self):
-        """Populate object fields from JSON string
-        """
-        return 
+    @classmethod
+    def from_dict(cls, data):
+        '''
+        Return a new instance with data loaded from a dict read from
+        JSON journal format, handling type conversion as necessary.
+        '''
+        for k, v in data.items():
+            if k == 'entries':
+                data[k] = [Entry.from_dict(e) for e in v]
 
+        return cls(**data)
+        
     def __repr__(self):
 
         return '<title: {} author: {} #entries: {}>'.format(
@@ -71,22 +80,24 @@ class Entry(Base):
     journal_id = Column(Integer, ForeignKey('journal.id'))
     journal = relationship('Journal', backref='journal_lookup')
 
-    def __init__(self, num, date, lat, lng, bearing, distance, text):
-        # TODO Make most of these optional 
-        self.number = num
+    # TODO num, date fields mandatory in DB and constructor
+    def __init__(self, number, date, latitude, longitude, 
+                 course_bearing, distance, text):
+        self.number = number
         self.date = date
-        self.latitude = lat
-        self.longitude = lng
-        self.course_bearing = bearing
+        self.latitude = latitude
+        self.longitude = longitude
+        self.course_bearing = course_bearing
         self.distance = distance
         self.text = text
 
     def to_dict(self):
-        """Prepare object data for serialization to JSON.
+        '''
+        Prepare object data for serialization to JSON.
 
         Filters out all the internal bits and converts non-JSON-able
         types to strings.
-        """
+        '''
         # TODO find a more elegant way to do this.. filter __dict__?
         obj = {'number': self.number,
                'date': self.date.strftime(TIME_FORMAT_STR),
@@ -97,14 +108,18 @@ class Entry(Base):
                'text': self.text}
 
         return obj
- 
-    def to_json(self):
-       return json.dumps(self.to_dict())
     
-    def load_from_json(self):
-        """Populate object fields from JSON string
-        """
-        return
+    @classmethod
+    def from_dict(cls, data):
+        '''
+        Return a new instance with data loaded from a dict read from
+        JSON journal format, handling type conversion as necessary.
+        '''
+        for k, v in data.items():
+            if k == 'date':
+                data[k] = datetime.strptime(v, TIME_FORMAT_STR)
+
+        return cls(**data)
 
     def __repr__(self):
         return '@Entry' # TODO Make this actually informative :)
