@@ -3,18 +3,20 @@ var viewer = new Cesium.Viewer('map', {
     infoBox : true,
     timeline : false,
     animation : false,
-    selectionIndicator : false
+    selectionIndicator : false,
+    requestRenderMode: true // Only render on view changes, really lowers CPU usage
 });
 
 var pinBuilder = new Cesium.PinBuilder();
 
-createJournalEntryMarkers(viewer, pinBuilder);
+//createJournalEntryMarkers(viewer, pinBuilder);
 
-viewer.dataSources.add(Cesium.GeoJsonDataSource.load('/journals/1'));
+viewer.dataSources.add(Cesium.GeoJsonDataSource.load('/journal/1/render'));
 
 var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 handler.setInputAction(function(click) {
     var pickedMarker = viewer.scene.pick(click.position);
+    console.log(pickedMarker);
     if (Cesium.defined(pickedMarker)) {
         var url = '/entry-text/' + pickedMarker.id.name;
         $.getJSON(url, function(response) {
@@ -22,7 +24,7 @@ handler.setInputAction(function(click) {
         });
     }
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
+/*
 function createJournalEntryMarkers(viewer, pinBuilder) {
     $.getJSON('/all-positions', function(response) {
         $.each(response, function(id, latlng) {
@@ -38,3 +40,4 @@ function createJournalEntryMarkers(viewer, pinBuilder) {
         });
     });
 }
+*/

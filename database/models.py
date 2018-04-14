@@ -5,13 +5,17 @@ from sqlalchemy import (Column, Integer, String, Date, ForeignKey,
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
+from geojson import Point, LineString, Feature, FeatureCollection
+
 TIME_FORMAT_STR = '%d %B %Y'
 
 Base = declarative_base()
-metadata = Base.metadata
+Metadata = Base.metadata
 
 class Journal(Base):
-    '''Represents an explorer's journal'''
+    '''
+    Represents an explorer's journal
+    '''
 
     __tablename__ = 'journal'
 
@@ -54,7 +58,31 @@ class Journal(Base):
                 data[k] = [Entry.from_dict(e) for e in v]
 
         return cls(**data)
-        
+
+    def to_geojson(self):
+        '''
+        Construct GeoJSON from spatial data for the journal and
+        entries thereof.
+        '''
+        # Create entry marker features. Save created points so we only have
+        # to go through the entries once
+        features = []
+        points = []
+        for e in self.entries:
+            if e.latitude and e.longitude:
+                p = Point((e.longitude, e.latitude))
+                points.append(p)
+                props = {'type': 'entry', 'id': e.id}
+                features.append(Feature(geometry=p, properties=props))
+
+        # Create route linestring feature
+        line = LineString(points)
+        props = {'type': 'route', 'id': self.id}
+        features.append(Feature(geometry=line, properties=props))
+
+        return FeatureCollection(features)
+
+    
     def __repr__(self):
 
         return '<title: {} author: {} #entries: {}>'.format(
