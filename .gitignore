@@ -67,4 +67,4 @@ target/
 *.db
 
 # Cesium
-app/static/cesium
+# app/static/cesium
