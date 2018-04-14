@@ -9,4 +9,4 @@ class DevConfig(Config):
 
 class LiveConfig(Config):
     DEBUG=False
-    SQLALCHEMY_DATABASE_URI= 'sqlite:///../journals.db'
+    SQLALCHEMY_DATABASE_URI= 'postgres://postgres:4be8f5645713e20bb679c6f3cacec32d@dokku-postgres-navigatorsdb:5432/navigatorsdb'
