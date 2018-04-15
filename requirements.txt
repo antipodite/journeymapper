@@ -1,6 +1,7 @@
 click==6.7
 first==2.0.1
 Flask==0.12.2
+Flask-Login==0.4.1
 Flask-SQLAlchemy==2.3.2
 geojson==2.3.0
 gunicorn==19.7.1

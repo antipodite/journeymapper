@@ -1,3 +1,4 @@
+Cesium.BingMapsApi.defaultKey = 'AmANu2dgc_p-DXNs_r7etLm99QDeVbRuJFUck_Qetp0APPGgEfygkGMS6lpOBwUU';
 var viewer = new Cesium.Viewer('map', {
     baseLayerPicker : false,
     infoBox : true,

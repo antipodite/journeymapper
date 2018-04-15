@@ -4,9 +4,13 @@ import sys
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 
 from app.config import DevConfig, LiveConfig
 from database.models import Journal, Entry, Metadata
+from app.models import User
+
+## Configure app
 
 app = Flask(__name__)
 
@@ -16,9 +20,16 @@ else:
     settings = DevConfig
 app.config.from_object(settings)
 
-db = SQLAlchemy(metadata=Metadata)
-db.init_app(app)
+## DB configuration
+
+db = SQLAlchemy(app, metadata=Metadata)
+db.create_all()
 session = db.session
+
+## User login support
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 ## Views
 
