@@ -1,14 +1,17 @@
 import os
 import sys
+import json
+from json import JSONDecodeError
 
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request, flash, abort, redirect, url_for
 
 from flask_sqlalchemy import SQLAlchemy
 
-from flask_login import LoginManager, login_user, logout_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
 
@@ -36,7 +39,8 @@ session = db.session
 # that doesn't need password in source code
 if not db.session.query(User).filter_by(name='admin').first():
     admin_user = User(name='admin', email='admin@navigato.rs')
-    admin_user.set_password('password')
+    adminpw = os.environ['ADMIN_PASSWORD']
+    admin_user.set_password(adminpw)
     db.session.add(admin_user)
     db.session.commit()
 
@@ -54,6 +58,15 @@ class LoginForm(FlaskForm):
 @login_manager.user_loader
 def load_user(userid):
     return session.query(User).get(userid)
+
+## File upload support
+
+class UploadForm(FlaskForm):
+    journal_file = FileField(validators=[
+        FileRequired(),
+        FileAllowed(['json'], 'json only')
+    ])
+    submit = SubmitField('Upload')
 
 ## Views
 
@@ -77,7 +90,7 @@ def login():
             #    return abort(400)
             return redirect(next or url_for('index'))
         except AttributeError:
-            flash('No user named ' + username)
+            form.errors['user_missing'] = 'No user named ' + username
 
     return render_template('login.html', title='Log in', form=form)
 
@@ -85,6 +98,24 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+@app.route('/upload', methods=['GET', 'POST'])
+@login_required
+def upload():
+    form = UploadForm()
+    if form.validate_on_submit() and current_user.name == 'admin':
+        f = form.journal_file.data
+        try:
+            data = f.read().decode('utf-8')
+            dict = json.loads(data)
+            journal = Journal.from_dict(dict)
+            # TODO Need to add code to journal/entry models to detect duplicates
+            session.add(journal)
+            session.commit()
+            return redirect(url_for('index'))
+        except (JSONDecodeError, TypeError):
+            form.errors['upload_error'] = 'Could not parse file, check format'
+    return render_template('upload.html', title='Upload data', form=form)
 
 @app.route('/journal/<jid>/render')
 def render_journal_data(jid):

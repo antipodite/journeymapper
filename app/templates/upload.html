@@ -1,0 +1,19 @@
+{% block content %}
+    <h1>Upload data file</h1>
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.journal_file.label }}
+            <br>
+            {{ form.journal_file() }}
+        </p>
+        <p>
+            {{ form.submit() }}
+        </p>
+        <p>
+        {% if form.errors %}
+            {{ form.errors }}
+        {% endif %}
+        </p>
+    </form>
+{% endblock %}
